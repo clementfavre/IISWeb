@@ -131,6 +131,9 @@ if (appOptions.RequireHttps)
 
 // ----- Application services -----
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton<ITotpService, TotpService>();
+builder.Services.AddSingleton<MfaTicketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IIisPoolService, IisPoolService>();
@@ -205,6 +208,7 @@ app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMustChangePassword();
 
 app.MapRazorPages();
 

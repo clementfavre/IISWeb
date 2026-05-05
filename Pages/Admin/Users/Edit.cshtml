@@ -1,0 +1,87 @@
+@page "{id:int}"
+@model IISWeb.Pages.Admin.Users.EditModel
+@{
+    ViewData["Title"] = $"Edit {Model.Target?.UserName}";
+    var t = Model.Target!;
+    var locked = t.LockoutUntilUtc is { } u && u > DateTime.UtcNow;
+}
+
+<a class="btn btn-link btn-sm ps-0" asp-page="Index">&laquo; Back to users</a>
+<h1 class="h4 mb-3">@t.UserName</h1>
+
+@if (Model.StatusMessage is { } m)
+{
+    <div class="alert alert-@(Model.StatusSuccess ? "success" : "danger")" role="alert">@m</div>
+}
+@if (Model.ErrorMessage is { } e)
+{
+    <div class="alert alert-danger" role="alert">@e</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Role</dt>
+    <dd class="col-sm-9">@t.Role</dd>
+
+    <dt class="col-sm-3">MFA</dt>
+    <dd class="col-sm-9">@(t.TotpEnabled ? "Enabled" : "Disabled")</dd>
+
+    <dt class="col-sm-3">Created</dt>
+    <dd class="col-sm-9">@t.CreatedUtc.ToString("yyyy-MM-dd HH:mm 'UTC'")</dd>
+
+    <dt class="col-sm-3">Last login</dt>
+    <dd class="col-sm-9">@(t.LastLoginUtc?.ToString("yyyy-MM-dd HH:mm 'UTC'") ?? "—")</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">
+        @if (locked) { <span class="badge text-bg-warning">Locked until @t.LockoutUntilUtc?.ToString("HH:mm 'UTC'")</span> }
+        else if (t.MustChangePassword) { <span class="badge text-bg-info">Must change password</span> }
+        else { <span class="text-muted">OK</span> }
+    </dd>
+</dl>
+
+<hr />
+<h2 class="h6">Role</h2>
+<form method="post" asp-page-handler="Role" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+        <select asp-for="Role" class="form-select form-select-sm">
+            @foreach (var r in Model.Roles)
+            {
+                <option value="@r" selected="@(r == t.Role)">@r</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary btn-sm" type="submit">Save role</button>
+    </div>
+</form>
+
+<h2 class="h6">Reset password</h2>
+<form method="post" asp-page-handler="ResetPassword" class="row g-2 align-items-end mb-3" autocomplete="off"
+      data-confirm="Reset password for @t.UserName? They will be forced to change it on next sign-in.">
+    <div class="col-auto">
+        <input asp-for="NewPassword" type="password" class="form-control form-control-sm"
+               minlength="12" maxlength="256" placeholder="New password (>=12 chars)" required />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-warning btn-sm" type="submit">Reset</button>
+    </div>
+</form>
+
+@if (locked)
+{
+    <h2 class="h6">Unlock</h2>
+    <form method="post" asp-page-handler="Unlock" class="mb-3">
+        <button class="btn btn-outline-secondary btn-sm" type="submit">Unlock account</button>
+    </form>
+}
+
+@if (t.TotpEnabled)
+{
+    <h2 class="h6">Disable MFA (admin override)</h2>
+    <form method="post" asp-page-handler="DisableMfa" class="mb-3"
+          data-confirm="Disable MFA for @t.UserName? They will sign in with password only until they re-enrol.">
+        <button class="btn btn-outline-danger btn-sm" type="submit">
+            Disable MFA
+        </button>
+    </form>
+}

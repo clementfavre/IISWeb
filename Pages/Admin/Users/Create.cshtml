@@ -1,0 +1,40 @@
+@page
+@model IISWeb.Pages.Admin.Users.CreateModel
+@{
+    ViewData["Title"] = "New user";
+}
+
+<h1 class="h4 mb-3">New user</h1>
+
+@if (Model.ErrorMessage is { } m)
+{
+    <div class="alert alert-danger" role="alert">@m</div>
+}
+
+<form method="post" autocomplete="off" novalidate class="col-12 col-md-6">
+    <div class="mb-3">
+        <label asp-for="Input.UserName" class="form-label">Username</label>
+        <input asp-for="Input.UserName" class="form-control"
+               autocapitalize="off" autocorrect="off" required maxlength="64" autofocus />
+        <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Initial password</label>
+        <input asp-for="Input.Password" type="password" class="form-control"
+               autocomplete="new-password" minlength="12" required />
+        <div class="form-text">At least 12 characters. The user will be forced to change it on first sign-in.</div>
+        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Role" class="form-label">Role</label>
+        <select asp-for="Input.Role" class="form-select">
+            @foreach (var r in Model.Roles)
+            {
+                <option value="@r">@r</option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Create user</button>
+    <a class="btn btn-link" asp-page="Index">Cancel</a>
+</form>

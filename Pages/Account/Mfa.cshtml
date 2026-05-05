@@ -1,0 +1,100 @@
+@page
+@model IISWeb.Pages.Account.MfaModel
+@{
+    ViewData["Title"] = "Two-factor authentication";
+}
+
+<h1 class="h4 mb-3">Two-factor authentication</h1>
+
+@if (Model.StatusMessage is { } m)
+{
+    <div class="alert alert-@(Model.StatusSuccess ? "success" : "danger")" role="alert">@m</div>
+}
+
+@if (Model.RecoveryCodesToShow is { Count: > 0 } codes)
+{
+    <div class="card border-warning mb-3">
+        <div class="card-header bg-warning-subtle">
+            <strong>Save these recovery codes now</strong>
+        </div>
+        <div class="card-body">
+            <p class="small text-muted mb-2">
+                Each code can be used once instead of an authenticator code. They are shown
+                only this once. Store them in your password manager.
+            </p>
+            <pre class="bg-light p-2 mb-0 small">@string.Join("\n", codes)</pre>
+        </div>
+    </div>
+}
+
+@if (Model.TotpEnabled)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>
+                <span class="badge text-bg-success">Enabled</span>
+                <span class="ms-2 text-muted">@Model.RemainingRecoveryCodes recovery code(s) remaining</span>
+            </p>
+
+            <hr />
+            <h2 class="h6">Disable MFA</h2>
+            <form method="post" asp-page-handler="Disable" autocomplete="off">
+                <div class="mb-2">
+                    <label asp-for="CurrentPassword" class="form-label">Current password</label>
+                    <input asp-for="CurrentPassword" type="password" class="form-control" autocomplete="current-password" required />
+                </div>
+                <div class="mb-2">
+                    <label asp-for="DisableCode" class="form-label">Current TOTP code</label>
+                    <input asp-for="DisableCode" class="form-control" inputmode="numeric" maxlength="6" required />
+                </div>
+                <button class="btn btn-outline-danger btn-sm" type="submit">Disable MFA</button>
+            </form>
+
+            <hr />
+            <h2 class="h6">Regenerate recovery codes</h2>
+            <form method="post" asp-page-handler="RegenerateCodes"
+                  data-confirm="Replace existing recovery codes? Old codes will stop working.">
+                <button class="btn btn-outline-secondary btn-sm" type="submit">
+                    Regenerate
+                </button>
+            </form>
+        </div>
+    </div>
+}
+else if (Model.PendingSecret is { } secret)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>
+                Scan the QR code with your authenticator app (Google Authenticator, Microsoft
+                Authenticator, 1Password, Bitwarden, …) then enter the 6-digit code it shows.
+            </p>
+            <div class="text-center mb-2">@Html.Raw(Model.PendingQrSvg)</div>
+            <p class="small text-muted">
+                Manual entry: <code>@secret</code>
+            </p>
+            <form method="post" asp-page-handler="Confirm" autocomplete="off">
+                <div class="mb-2">
+                    <label asp-for="VerifyCode" class="form-label">Code</label>
+                    <input asp-for="VerifyCode" class="form-control" inputmode="numeric"
+                           autocomplete="one-time-code" maxlength="6" required autofocus />
+                </div>
+                <button class="btn btn-primary btn-sm" type="submit">Verify and enable</button>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>
+                <span class="badge text-bg-secondary">Disabled</span>
+            </p>
+            <p>Enable MFA to require a 6-digit code from your authenticator app on every sign-in.</p>
+            <form method="post" asp-page-handler="Begin">
+                <button class="btn btn-primary btn-sm" type="submit">Enable MFA</button>
+            </form>
+        </div>
+    </div>
+}

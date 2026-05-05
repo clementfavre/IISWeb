@@ -1,0 +1,41 @@
+@page
+@model IISWeb.Pages.Account.LoginMfaModel
+@{
+    ViewData["Title"] = "Two-factor verification";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h1 class="h4 mb-3">Two-factor verification</h1>
+                <p class="text-muted small">
+                    Enter the 6-digit code from your authenticator app, or one of your recovery codes.
+                </p>
+
+                @if (Model.ErrorMessage is { } m)
+                {
+                    <div class="alert alert-danger" role="alert">@m</div>
+                }
+
+                <form method="post" autocomplete="off" novalidate>
+                    <div class="mb-3">
+                        <label asp-for="Input.Code" class="form-label">Code</label>
+                        <input asp-for="Input.Code" class="form-control"
+                               inputmode="text" autocomplete="one-time-code"
+                               autocapitalize="characters" autocorrect="off"
+                               autofocus required maxlength="16" />
+                        <span asp-validation-for="Input.Code" class="text-danger small"></span>
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit">Verify</button>
+                </form>
+
+                <hr />
+                <form method="post" asp-page-handler="Cancel">
+                    <button type="submit" class="btn btn-link btn-sm w-100">Cancel and sign in again</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace IISWeb.Services;
@@ -27,7 +28,7 @@ public class MfaTicketService
         var payload = string.Join('|',
             userId.ToString(CultureInfo.InvariantCulture),
             userName,
-            ip,
+            NormalizeIp(ip),
             expires.ToString("O", CultureInfo.InvariantCulture),
             mustChangePassword ? "1" : "0",
             returnUrl ?? string.Empty);
@@ -52,10 +53,20 @@ public class MfaTicketService
         if (expires < DateTime.UtcNow) return null;
 
         // IP-pinning: a stolen ticket replayed from another IP is rejected.
-        if (!string.Equals(parts[2], currentIp, StringComparison.Ordinal)) return null;
+        // Normalise IPv4-mapped-IPv6 (::ffff:127.0.0.1) so a Kestrel switch
+        // between IPv4 and IPv6 loopback between two POSTs does not lock the user out.
+        if (!string.Equals(parts[2], NormalizeIp(currentIp), StringComparison.Ordinal)) return null;
 
         var must = parts[4] == "1";
         var ret = parts.Length > 5 ? parts[5] : null;
         return new MfaTicket(id, parts[1], parts[2], expires, must, string.IsNullOrEmpty(ret) ? null : ret);
+    }
+
+    private static string NormalizeIp(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return raw;
+        if (!IPAddress.TryParse(raw, out var ip)) return raw;
+        if (ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
+        return ip.ToString();
     }
 }

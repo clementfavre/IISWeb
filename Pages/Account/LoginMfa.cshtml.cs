@@ -41,14 +41,14 @@ public class LoginMfaModel : PageModel
     public IActionResult OnGet()
     {
         var ticket = ReadTicket();
-        if (ticket is null) return RedirectToPage("/Account/Login");
+        if (ticket is null) return RedirectToPage("/Account/Login", new { reason = "expired" });
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
         var ticket = ReadTicket();
-        if (ticket is null) return RedirectToPage("/Account/Login");
+        if (ticket is null) return RedirectToPage("/Account/Login", new { reason = "expired" });
 
         if (!ModelState.IsValid)
         {

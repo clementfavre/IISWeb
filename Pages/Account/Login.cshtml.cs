@@ -32,7 +32,11 @@ public class LoginModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? Reason { get; set; }
+
     public string? ErrorMessage { get; set; }
+    public string? InfoMessage { get; set; }
 
     public class InputModel
     {
@@ -54,6 +58,15 @@ public class LoginModel : PageModel
         // Make sure to clear out any half-broken auth.
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         Response.Cookies.Delete(MfaTicketService.CookieName);
+
+        // Surface the reason when the user got bounced back from /LoginMfa,
+        // otherwise the bounce looks silent and indistinguishable from a typo.
+        InfoMessage = Reason switch
+        {
+            "expired" => "Your verification session expired. Please sign in again.",
+            _         => null
+        };
+
         return Page();
     }
 

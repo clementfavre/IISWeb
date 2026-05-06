@@ -54,10 +54,10 @@
                         }
                         else
                         {
-                            <span class="text-muted small">—</span>
+                            <span class="text-muted small">OK</span>
                         }
                     </td>
-                    <td><small>@(u.LastLoginUtc?.ToString("yyyy-MM-dd HH:mm") ?? "—")</small></td>
+                    <td><small>@(u.LastLoginUtc?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</small></td>
                     <td class="text-end text-nowrap">
                         <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@u.Id">Edit</a>
                         <a class="btn btn-outline-danger btn-sm" asp-page="Delete" asp-route-id="@u.Id">Delete</a>

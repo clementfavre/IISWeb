@@ -6,7 +6,7 @@
     var locked = t.LockoutUntilUtc is { } u && u > DateTime.UtcNow;
 }
 
-<a class="btn btn-link btn-sm ps-0" asp-page="Index">&laquo; Back to users</a>
+<a class="btn btn-link btn-sm ps-0" asp-page="Index">Back to users</a>
 <h1 class="h4 mb-3">@t.UserName</h1>
 
 @if (Model.StatusMessage is { } m)
@@ -29,7 +29,7 @@
     <dd class="col-sm-9">@t.CreatedUtc.ToString("yyyy-MM-dd HH:mm 'UTC'")</dd>
 
     <dt class="col-sm-3">Last login</dt>
-    <dd class="col-sm-9">@(t.LastLoginUtc?.ToString("yyyy-MM-dd HH:mm 'UTC'") ?? "—")</dd>
+    <dd class="col-sm-9">@(t.LastLoginUtc?.ToString("yyyy-MM-dd HH:mm 'UTC'") ?? "Never")</dd>
 
     <dt class="col-sm-3">Status</dt>
     <dd class="col-sm-9">

@@ -6,15 +6,13 @@
     var isAdmin = User.IsInRole(Roles.Admin);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-    <h1 class="h4 m-0">
-        Application Pools
-        <span class="text-muted small fw-normal" id="poolCount">(@totalCount)</span>
-    </h1>
-    <form method="get" class="m-0">
-        <button class="btn btn-outline-secondary btn-sm" type="submit" title="Refresh">Refresh</button>
+<header class="iisweb-pageheader">
+    <form method="get" class="iisweb-pageheader-action">
+        <button type="submit" class="iisweb-textlink" title="Refresh the list">Refresh</button>
     </form>
-</div>
+    <div class="iisweb-eyebrow">IIS administration</div>
+    <h1>Application Pools <span class="text-muted" id="poolCount">(@totalCount)</span></h1>
+</header>
 
 @if (Model.LoadError is { } err)
 {
@@ -54,7 +52,7 @@
                             <span class="badge text-bg-@StateBadge(p.State)">@p.State</span>
                             <small class="text-muted ms-2 d-inline-block">
                                 @(string.IsNullOrEmpty(p.ManagedRuntimeVersion) ? "No managed code" : p.ManagedRuntimeVersion)
-                                · @p.IdentityType
+                                - @p.IdentityType
                             </small>
                         </div>
 

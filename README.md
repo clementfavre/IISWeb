@@ -10,11 +10,13 @@ through a VPN. If not, make sure you protect it some other way
 
 The scope is intentionally narrow:
 
-| Allowed                              | Refused (out of scope)                       |
-| ------------------------------------ | -------------------------------------------- |
-| List Application Pools (whitelisted) | Sites, bindings, virtual directories         |
-| Start / Stop / Recycle a pool        | Creating or deleting pools / sites           |
-| Audit log (read only)                | Editing files, web shell, server reboot      |
+| Allowed                                          | Refused (out of scope)                       |
+| ------------------------------------------------ | -------------------------------------------- |
+| List Application Pools (whitelisted)             | Sites, bindings, virtual directories         |
+| Start / Stop / Recycle a pool                    | Creating or deleting pools / sites           |
+| Audit log (read only, tamper-evident)            | Editing files, web shell, server reboot      |
+| Manage local users (create / role / reset / lock)| External identity providers (AD, OIDC)       |
+| Per-user TOTP MFA (RFC 6238)                     | Hardware tokens / WebAuthn                   |
 
 Tech stack: ASP.NET Core 10 (LTS), Razor Pages, EF Core + SQLite, cookie auth,
 `Microsoft.Web.Administration`, Bootstrap 5.
@@ -91,7 +93,7 @@ If the database has no users when the app starts, IISWeb reads:
 - `IISWEB_INITIAL_ADMIN_USER`
 - `IISWEB_INITIAL_ADMIN_PASS`
 
-…and creates that admin once. Set these on the App Pool (Advanced Settings →
+…and creates that admin once. Set these on the App Pool (Advanced Settings =>
 Environment Variables on IIS 10+, or `web.config`/`environmentVariables`),
 then **remove them after the first successful start**.
 
@@ -153,18 +155,38 @@ service to a specific admin subnet inside an already-private network.
 ## 5. Using the app
 
 - Navigate to the HTTPS hostname over the VPN.
-- Sign in.
+- Sign in. If MFA is enabled on your account, enter the 6-digit code from your
+  authenticator app (or one of your recovery codes).
 - The home page lists the whitelisted pools. Each card shows the current state
   and (for **Admin** users) Start / Stop / Recycle buttons. Buttons disabled
   when irrelevant for the current state.
-- Every action is auditable in **Audit log**.
+- Every action is auditable in **Audit log**. The audit chain can be verified
+  for tampering from that page.
+
+### Two-factor authentication
+
+Each user can enrol in TOTP MFA from the user-menu => **Two-factor**:
+
+1. Click **Enable MFA**, scan the QR code with Google Authenticator,
+   Microsoft Authenticator, 1Password, Bitwarden or any RFC 6238 app.
+2. Enter the first code to confirm.
+3. **Save the 10 recovery codes** shown only once. Each code can be used as a
+   one-time replacement for an authenticator code if the device is lost.
+
+To disable MFA, the user must enter their current password **and** a current
+TOTP code. An Admin can disable a user's MFA from `Users => Edit`.
+
+### User management (Admin)
+
+`Users` (visible to Admins only) allows: create user, change role, reset
+password (the user is forced to change it on next sign-in), unlock locked
+accounts, disable MFA (admin override), delete user. Last-Admin and self-delete
+guards are enforced.
 
 ## 6. Authorization model
 
-- **Admin**: sees pools and can Start / Stop / Recycle.
-- **Viewer**: sees pools but cannot act. The data model already supports the
-  role; only Admin is created out of the box. Add a role check in
-  `Pages/Index.cshtml.cs` to extend the matrix later.
+- **Admin**: sees pools and can Start / Stop / Recycle. Manages users.
+- **Viewer**: sees pools and audit log but cannot act on pools.
 
 ## 7. Files & layout
 

@@ -1,34 +1,417 @@
-/* IISWeb — lightweight overrides on top of Bootstrap 5 */
+/* ------------------------------------------------------------------
+   IISWeb - paper theme
+   Brand inspired from my own site clementfavre.ch
+   ------------------------------------------------------------------ */
 
 :root {
-    /* Replace the default vivid-blue focus ring with a sober neutral one. */
-    --iisweb-focus: rgba(33, 37, 41, 0.18);
-    --iisweb-focus-strong: rgba(33, 37, 41, 0.30);
-    --iisweb-border-focus: #6c757d;
+    /* Brand palette — Crème & Plum */
+    --cf-bg:         #fdf3e6;
+    --cf-bg-alt:     #f3dcc2;
+    --cf-paper:      #fffefb;
+    --cf-ink:        #131418;
+    --cf-ink-soft:   #3a3b40;
+    --cf-mist:       #c9c5bb;
+    --cf-mist-soft:  #e2ded2;
+    --cf-cheek:      #b8485e;
+    --cf-cheek-deep: #8e2e44;
+    --cf-yolk:       #e8b340;
+    --cf-yolk-deep:  #b88318;
+    --cf-sky:        #a8c5d6;
+    --cf-leaf:       #9bb07e;
+
+    /* Surface tokens */
+    --cf-radius-xs:  4px;
+    --cf-radius-sm:  8px;
+    --cf-radius:     12px;
+    --cf-radius-lg:  18px;
+
+    --cf-shadow-xs:  0 1px 0 rgba(26, 27, 30, .04);
+    --cf-shadow-sm:  0 1px 2px rgba(26, 27, 30, .04), 0 1px 3px rgba(26, 27, 30, .05);
+    --cf-shadow:     0 4px 14px -6px rgba(26, 27, 30, .10), 0 2px 4px rgba(26, 27, 30, .04);
+    --cf-shadow-md:  0 18px 40px -22px rgba(26, 27, 30, .18), 0 6px 14px -8px rgba(26, 27, 30, .08);
+    --cf-shadow-warm: 0 14px 36px -18px rgba(142, 46, 68, .35);
+
+    --cf-focus:      rgba(142, 46, 68, .32);
+    --cf-focus-soft: rgba(142, 46, 68, .22);
+
+    /* Bootstrap overrides */
+    --bs-body-bg: var(--cf-bg);
+    --bs-body-color: var(--cf-ink);
+    --bs-body-font-family: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --bs-body-font-size: 0.95rem;
+    --bs-body-line-height: 1.55;
+
+    --bs-link-color: var(--cf-cheek-deep);
+    --bs-link-hover-color: #722438;
+    --bs-link-color-rgb: 142, 46, 68;
+    --bs-link-hover-color-rgb: 114, 36, 56;
+
+    --bs-border-color: var(--cf-mist-soft);
+    --bs-border-color-translucent: rgba(26, 27, 30, .08);
+    --bs-secondary-color: var(--cf-ink-soft);
+    --bs-secondary-bg: var(--cf-bg-alt);
+    --bs-tertiary-bg: var(--cf-bg-alt);
+    --bs-tertiary-color: var(--cf-ink-soft);
+
+    --bs-primary: var(--cf-cheek-deep);
+    --bs-primary-rgb: 142, 46, 68;
+
+    --bs-success-rgb: 122, 148, 90;
+    --bs-warning-rgb: 184, 131, 24;
+    --bs-danger-rgb: 142, 46, 68;
+    --bs-info-rgb: 138, 170, 188;
+
+    --bs-emphasis-color: var(--cf-ink);
+    --bs-emphasis-color-rgb: 26, 27, 30;
 }
 
-html, body {
-    min-height: 100%;
+html, body { min-height: 100%; }
+
+body {
+    font-family: var(--bs-body-font-family);
+    background:
+        radial-gradient(1200px 700px at 85% -10%, rgba(232, 179, 64, .15), transparent 60%),
+        var(--cf-bg);
+    color: var(--cf-ink);
+    -webkit-font-smoothing: antialiased;
 }
 
-main {
-    max-width: 1100px;
-}
+main { max-width: 1100px; }
 
-.card-body h2 {
-    font-size: 1rem;
+/* ------------------------------------------------------------------
+   Typographie
+   ------------------------------------------------------------------ */
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--bs-body-font-family);
     font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--cf-ink);
 }
 
-.text-break {
-    word-break: break-word;
+h1, .h1, h2, .h2 { letter-spacing: -0.022em; }
+h1, .h1 { font-weight: 700; }
+
+code, pre, kbd, samp {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: 0.86em;
+}
+
+code:not(pre code) {
+    background: var(--cf-bg-alt);
+    color: var(--cf-cheek-deep);
+    padding: .12em .42em;
+    border-radius: var(--cf-radius-xs);
+    border: 1px solid rgba(26, 27, 30, .06);
+}
+
+a { text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+.text-muted { color: var(--cf-ink-soft) !important; }
+
+/* ------------------------------------------------------------------
+   Navbar
+   ------------------------------------------------------------------ */
+
+.navbar {
+    --bs-navbar-padding-y: .85rem;
+    background: var(--cf-bg) !important;
+    border-bottom: 1px solid var(--cf-mist-soft);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--cf-ink) !important;
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+}
+
+.iisweb-mark {
+    fill: var(--cf-cheek);
+    transform: rotate(-22deg);
+    transform-origin: center;
+    transition: transform .25s ease;
+    flex-shrink: 0;
+}
+.navbar-brand:hover .iisweb-mark { transform: rotate(-12deg) translateY(-1px); }
+.iisweb-mark-soft { fill: var(--cf-mist); opacity: .85; }
+
+.navbar .nav-link {
+    color: var(--cf-ink-soft) !important;
+    font-weight: 500;
+    padding: .35rem .85rem !important;
+    border-radius: var(--cf-radius-sm);
+    transition: background .15s ease, color .15s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus { color: var(--cf-ink) !important; background: var(--cf-bg-alt); }
+
+.navbar .dropdown-toggle::after { color: var(--cf-ink-soft); }
+
+.navbar .dropdown-menu {
+    background: var(--cf-paper);
+    border: 1px solid var(--cf-mist-soft);
+    border-radius: var(--cf-radius);
+    box-shadow: var(--cf-shadow-md);
+    padding: .35rem;
+    margin-top: .35rem !important;
+}
+
+.navbar .dropdown-item {
+    border-radius: var(--cf-radius-sm);
+    color: var(--cf-ink);
+    padding: .45rem .65rem;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus { background: var(--cf-bg-alt); color: var(--cf-ink); }
+
+.navbar .badge.text-bg-secondary {
+    background: var(--cf-mist-soft) !important;
+    color: var(--cf-ink) !important;
+    font-weight: 500;
+}
+
+.navbar-toggler {
+    border: 1px solid var(--cf-mist-soft);
+    padding: .35rem .55rem;
+}
+.navbar-toggler:focus { box-shadow: 0 0 0 .15rem var(--cf-focus-soft); }
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231a1b1e' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 /* ------------------------------------------------------------------
-   Focus styling — kill Bootstrap's blue glow on inputs / buttons /
-   links and replace it with a thinner, neutral ring. Visible enough
-   for keyboard accessibility, calm enough not to hurt the eyes.
+   Cards
    ------------------------------------------------------------------ */
+
+.card {
+    background: var(--cf-paper);
+    border: 1px solid var(--cf-mist-soft);
+    border-radius: var(--cf-radius);
+    box-shadow: var(--cf-shadow-xs);
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.card.shadow-sm { box-shadow: var(--cf-shadow-sm) !important; }
+
+.card.shadow-sm:hover {
+    box-shadow: var(--cf-shadow) !important;
+    border-color: rgba(26, 27, 30, .12);
+}
+
+.card-body { padding: 1.15rem 1.25rem; }
+
+.card-header {
+    background: var(--cf-bg-alt);
+    border-bottom: 1px solid var(--cf-mist-soft);
+    font-weight: 600;
+}
+
+.card.border-warning {
+    border-color: rgba(184, 131, 24, .50) !important;
+    background:
+        linear-gradient(180deg, rgba(232, 179, 64, .08), transparent 70%),
+        var(--cf-paper);
+}
+
+.card.border-warning .card-header.bg-warning-subtle {
+    background: rgba(232, 179, 64, .20) !important;
+    border-bottom-color: rgba(184, 131, 24, .40);
+    color: var(--cf-ink);
+}
+
+/* ------------------------------------------------------------------
+   Boutons
+   ------------------------------------------------------------------ */
+
+.btn {
+    --bs-btn-border-radius: var(--cf-radius-sm);
+    font-weight: 500;
+    letter-spacing: .005em;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .05s ease;
+}
+
+.btn:active { transform: translateY(1px); }
+.btn:focus, .btn.focus { box-shadow: none; }
+.btn:focus-visible { outline: 0; box-shadow: 0 0 0 .15rem var(--cf-focus); }
+
+/* Primary = encre (sobre, signature) */
+.btn-primary {
+    background: var(--cf-ink);
+    border-color: var(--cf-ink);
+    color: var(--cf-bg);
+}
+.btn-primary:hover, .btn-primary:focus {
+    background: #2c2d31;
+    border-color: #2c2d31;
+    color: var(--cf-bg);
+}
+.btn-primary:disabled, .btn-primary.disabled {
+    background: var(--cf-mist);
+    border-color: var(--cf-mist);
+    color: var(--cf-ink-soft);
+}
+
+/* Success = pool actif → vert chaleureux mat */
+.btn-success {
+    background: #7a945a;
+    border-color: #7a945a;
+    color: #fff;
+}
+.btn-success:hover { background: #6a8348; border-color: #6a8348; color: #fff; }
+.btn-success:disabled { background: var(--cf-mist-soft); border-color: var(--cf-mist-soft); color: var(--cf-ink-soft); }
+
+/* Danger = prune (l'accent du site) */
+.btn-danger {
+    background: var(--cf-cheek-deep);
+    border-color: var(--cf-cheek-deep);
+    color: #fff;
+}
+.btn-danger:hover { background: #722438; border-color: #722438; color: #fff; }
+.btn-danger:disabled { background: var(--cf-mist-soft); border-color: var(--cf-mist-soft); color: var(--cf-ink-soft); }
+
+/* Warning = jaune jaune d'œuf */
+.btn-warning {
+    background: var(--cf-yolk);
+    border-color: var(--cf-yolk);
+    color: var(--cf-ink);
+}
+.btn-warning:hover { background: var(--cf-yolk-deep); border-color: var(--cf-yolk-deep); color: var(--cf-ink); }
+
+/* Outlines : bord fin, hover rempli */
+.btn-outline-secondary {
+    color: var(--cf-ink);
+    border-color: var(--cf-mist);
+    background: transparent;
+}
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+    background: var(--cf-bg-alt);
+    border-color: var(--cf-mist);
+    color: var(--cf-ink);
+}
+
+.btn-outline-primary {
+    color: var(--cf-cheek-deep);
+    border-color: var(--cf-cheek-deep);
+    background: transparent;
+}
+.btn-outline-primary:hover { background: var(--cf-cheek-deep); border-color: var(--cf-cheek-deep); color: #fff; }
+
+.btn-outline-danger {
+    color: var(--cf-cheek-deep);
+    border-color: rgba(142, 46, 68, .55);
+    background: transparent;
+}
+.btn-outline-danger:hover { background: var(--cf-cheek-deep); border-color: var(--cf-cheek-deep); color: #fff; }
+
+.btn-outline-warning {
+    color: var(--cf-yolk-deep);
+    border-color: rgba(184, 131, 24, .55);
+    background: transparent;
+}
+.btn-outline-warning:hover { background: var(--cf-yolk); border-color: var(--cf-yolk); color: var(--cf-ink); }
+
+.btn-outline-light {
+    color: var(--cf-ink);
+    border-color: var(--cf-mist);
+    background: transparent;
+}
+.btn-outline-light:hover { background: var(--cf-bg-alt); border-color: var(--cf-mist); color: var(--cf-ink); }
+
+.btn-link {
+    color: var(--cf-cheek-deep);
+    text-decoration: none;
+    font-weight: 500;
+}
+.btn-link:hover { color: #722438; text-decoration: underline; text-underline-offset: 3px; }
+
+.btn-sm {
+    --bs-btn-padding-y: .32rem;
+    --bs-btn-padding-x: .75rem;
+    --bs-btn-font-size: .85rem;
+}
+
+/* ------------------------------------------------------------------
+   Badges
+   ------------------------------------------------------------------ */
+
+.badge {
+    font-weight: 500;
+    letter-spacing: .01em;
+    padding: .35em .65em;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.badge.text-bg-success {
+    background: rgba(122, 148, 90, .14) !important;
+    color: #4f6638 !important;
+    border-color: rgba(122, 148, 90, .35);
+}
+
+.badge.text-bg-danger {
+    background: rgba(142, 46, 68, .14) !important;
+    color: var(--cf-cheek-deep) !important;
+    border-color: rgba(142, 46, 68, .40);
+}
+
+.badge.text-bg-warning {
+    background: rgba(232, 179, 64, .22) !important;
+    color: #7a5d0a !important;
+    border-color: rgba(184, 131, 24, .50);
+}
+
+.badge.text-bg-info {
+    background: rgba(168, 197, 214, .25) !important;
+    color: #3d6178 !important;
+    border-color: rgba(168, 197, 214, .55);
+}
+
+.badge.text-bg-secondary {
+    background: var(--cf-bg-alt) !important;
+    color: var(--cf-ink-soft) !important;
+    border-color: var(--cf-mist-soft);
+}
+
+.badge.text-bg-dark {
+    background: var(--cf-ink) !important;
+    color: var(--cf-bg) !important;
+}
+
+.badge.text-bg-light {
+    background: var(--cf-bg-alt) !important;
+    color: var(--cf-ink-soft) !important;
+    border-color: var(--cf-mist-soft);
+}
+
+/* ------------------------------------------------------------------
+   Forms
+   ------------------------------------------------------------------ */
+
+.form-label {
+    font-weight: 500;
+    color: var(--cf-ink);
+    margin-bottom: .35rem;
+    font-size: .88rem;
+}
+
+.form-control,
+.form-select {
+    background: var(--cf-paper);
+    border: 1px solid var(--cf-mist);
+    color: var(--cf-ink);
+    border-radius: var(--cf-radius-sm);
+    padding: .5rem .75rem;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.form-control::placeholder { color: var(--cf-ink-soft); opacity: .6; }
 
 .form-control:focus,
 .form-select:focus,
@@ -38,76 +421,310 @@ input.form-control:focus,
 textarea.form-control:focus,
 .input-group:focus-within > .form-control,
 .input-group:focus-within > .form-select {
-    border-color: var(--iisweb-border-focus);
+    border-color: var(--cf-cheek);
+    background: var(--cf-paper);
     outline: 0;
-    box-shadow: 0 0 0 0.15rem var(--iisweb-focus);
+    box-shadow: 0 0 0 .18rem var(--cf-focus-soft);
+    color: var(--cf-ink);
 }
 
+.form-check-input {
+    border-color: var(--cf-mist);
+    background-color: var(--cf-paper);
+}
 .form-check-input:focus {
-    border-color: var(--iisweb-border-focus);
-    box-shadow: 0 0 0 0.15rem var(--iisweb-focus);
+    border-color: var(--cf-cheek);
+    box-shadow: 0 0 0 .15rem var(--cf-focus-soft);
 }
-
 .form-check-input:checked {
-    background-color: #495057;
-    border-color: #495057;
+    background-color: var(--cf-ink);
+    border-color: var(--cf-ink);
 }
 
-/* Buttons: never show focus from a mouse click, only from keyboard */
-.btn:focus,
-.btn.focus {
-    box-shadow: none;
-}
-.btn:focus-visible {
-    outline: 0;
-    box-shadow: 0 0 0 0.15rem var(--iisweb-focus-strong);
-}
+.form-text { color: var(--cf-ink-soft); font-size: .82rem; }
 
-/* Same treatment for links & nav items */
-a:focus,
-.nav-link:focus,
-.navbar-brand:focus,
-.page-link:focus {
-    outline: 0;
-    box-shadow: none;
-}
-a:focus-visible,
-.nav-link:focus-visible,
-.navbar-brand:focus-visible,
-.page-link:focus-visible {
-    outline: 0;
-    border-radius: 2px;
-    box-shadow: 0 0 0 0.15rem var(--iisweb-focus-strong);
-}
-
-/* Search input gets a slightly lighter resting border so the focus
-   transition feels intentional. */
 #poolSearch {
-    border-color: #d0d4d8;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    border-color: var(--cf-mist);
+    background-image:
+        url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a4b50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='11' cy='11' r='7'%3e%3c/circle%3e%3cline x1='21' y1='21' x2='16.65' y2='16.65'%3e%3c/line%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: .6rem center;
+    background-size: 14px 14px;
+    padding-left: 2rem;
 }
 
-/* Subtle hover on cards & list rows */
-.card.shadow-sm {
-    transition: box-shadow .15s ease, transform .15s ease;
+/* ------------------------------------------------------------------
+   Tables
+   ------------------------------------------------------------------ */
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--cf-ink);
+    --bs-table-border-color: var(--cf-mist-soft);
+    --bs-table-striped-bg: rgba(26, 27, 30, .025);
+    --bs-table-hover-bg: rgba(142, 46, 68, .05);
+    color: var(--cf-ink);
 }
-.card.shadow-sm:hover {
-    box-shadow: 0 .25rem .65rem rgba(0, 0, 0, .07) !important;
+
+.table > :not(caption) > * > * {
+    padding: .65rem .75rem;
+    border-bottom-color: var(--cf-mist-soft);
+}
+
+.table thead th {
+    font-weight: 500;
+    color: var(--cf-ink-soft);
+    font-size: .82rem;
+    border-bottom: 1px solid var(--cf-mist);
+    background: transparent;
 }
 
 .table-hover > tbody > tr:hover > * {
-    background-color: rgba(0, 0, 0, .025);
+    background-color: var(--bs-table-hover-bg);
 }
 
-/* Make action buttons stretch on very small viewports */
+.table-responsive {
+    background: var(--cf-paper);
+    border: 1px solid var(--cf-mist-soft);
+    border-radius: var(--cf-radius);
+    overflow: hidden;
+    box-shadow: var(--cf-shadow-xs);
+}
+.table-responsive .table { margin-bottom: 0; }
+
+#poolsList .table > :not(caption) > * > * { padding-top: .65rem; padding-bottom: .65rem; }
+
+/* ------------------------------------------------------------------
+   Alerts
+   ------------------------------------------------------------------ */
+
+.alert {
+    border-radius: var(--cf-radius);
+    border: 1px solid transparent;
+    padding: .75rem 1rem;
+}
+
+.alert-success {
+    background: rgba(122, 148, 90, .10);
+    border-color: rgba(122, 148, 90, .35);
+    color: #3f5430;
+}
+
+.alert-danger {
+    background: rgba(142, 46, 68, .10);
+    border-color: rgba(142, 46, 68, .40);
+    color: #6e2235;
+}
+
+.alert-warning {
+    background: rgba(232, 179, 64, .16);
+    border-color: rgba(184, 131, 24, .45);
+    color: #6a4d08;
+}
+
+.alert-info {
+    background: rgba(168, 197, 214, .18);
+    border-color: rgba(168, 197, 214, .50);
+    color: #2f5269;
+}
+
+.alert .btn-close { filter: invert(.4) sepia(.2); }
+
+/* ------------------------------------------------------------------
+   Pagination
+   ------------------------------------------------------------------ */
+
+.pagination {
+    --bs-pagination-color: var(--cf-ink);
+    --bs-pagination-bg: var(--cf-paper);
+    --bs-pagination-border-color: var(--cf-mist-soft);
+    --bs-pagination-hover-color: var(--cf-cheek-deep);
+    --bs-pagination-hover-bg: var(--cf-bg-alt);
+    --bs-pagination-hover-border-color: var(--cf-mist);
+    --bs-pagination-focus-color: var(--cf-cheek-deep);
+    --bs-pagination-focus-bg: var(--cf-bg-alt);
+    --bs-pagination-focus-box-shadow: 0 0 0 .15rem var(--cf-focus-soft);
+    --bs-pagination-active-color: #fff;
+    --bs-pagination-active-bg: var(--cf-ink);
+    --bs-pagination-active-border-color: var(--cf-ink);
+    --bs-pagination-disabled-color: var(--cf-mist);
+    --bs-pagination-disabled-bg: var(--cf-bg-alt);
+    --bs-pagination-disabled-border-color: var(--cf-mist-soft);
+    gap: .25rem;
+}
+
+.page-link { border-radius: var(--cf-radius-sm) !important; }
+a.page-link:focus,
+a.page-link:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 .15rem var(--cf-focus-soft);
+}
+
+/* ------------------------------------------------------------------
+   Dl / Hr / Pre
+   ------------------------------------------------------------------ */
+
+dl.row dt {
+    font-weight: 500;
+    color: var(--cf-ink-soft);
+    font-size: .88rem;
+}
+dl.row dd { color: var(--cf-ink); }
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--cf-mist-soft);
+    opacity: 1;
+    margin: 1.5rem 0;
+}
+
+pre.bg-light, pre {
+    background: var(--cf-bg-alt) !important;
+    color: var(--cf-ink);
+    border: 1px solid var(--cf-mist-soft);
+    border-radius: var(--cf-radius-sm);
+    padding: .75rem 1rem;
+    font-size: .82rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* ------------------------------------------------------------------
+   Focus accessibilité (liens / nav / pagination)
+   ------------------------------------------------------------------ */
+
+a:focus,
+.nav-link:focus,
+.navbar-brand:focus,
+.page-link:focus { outline: 0; box-shadow: none; }
+
+a:focus-visible,
+.nav-link:focus-visible,
+.navbar-brand:focus-visible {
+    outline: 0;
+    border-radius: 4px;
+    box-shadow: 0 0 0 .18rem var(--cf-focus-soft);
+}
+
+/* ------------------------------------------------------------------
+   Footer / divers
+   ------------------------------------------------------------------ */
+
+footer.border-top {
+    border-top: 1px solid var(--cf-mist-soft) !important;
+    background: transparent;
+    color: var(--cf-ink-soft);
+}
+
+.iisweb-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .55rem;
+    color: var(--cf-ink-soft);
+    font-size: .82rem;
+    padding: 1.1rem 0;
+}
+
+
+/* Heading hero (page Pools) — asymétrie volontaire, action en text-link top-right */
+.iisweb-pageheader {
+    position: relative;
+    margin: .5rem 0 1.6rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--cf-mist-soft);
+}
+
+.iisweb-pageheader h1 {
+    margin: 0;
+    font-family: Cambria, Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 2.1rem;
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+}
+
+.iisweb-pageheader h1 .text-muted { font-family: var(--bs-body-font-family); font-size: .65em; }
+
+.iisweb-pageheader .iisweb-eyebrow {
+    font-size: .85rem;
+    font-weight: 400;
+    color: var(--cf-ink-soft);
+    margin-bottom: .4rem;
+    font-style: italic;
+    font-family: Cambria, Georgia, "Times New Roman", serif;
+}
+
+.iisweb-pageheader-action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+}
+
+.iisweb-textlink {
+    border: 0;
+    background: transparent;
+    color: var(--cf-ink-soft);
+    font-size: .82rem;
+    font-weight: 400;
+    padding: 0;
+    cursor: pointer;
+    transition: color .15s ease;
+}
+.iisweb-textlink:hover,
+.iisweb-textlink:focus-visible {
+    color: var(--cf-cheek-deep);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    outline: 0;
+}
+
+.iisweb-pool-card {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+}
+
+.iisweb-pool-card h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-body h2 { font-size: 1rem; font-weight: 600; }
+
+.text-break { word-break: break-word; }
+
+.btn-group .btn-outline-secondary.active,
+.btn-group .btn-outline-secondary[aria-pressed="true"] {
+    background: var(--cf-ink);
+    border-color: var(--cf-ink);
+    color: var(--cf-bg);
+}
+
+/* Petits ajustements responsive pour les fiches pools */
 @media (max-width: 480px) {
-    .card-body form {
-        flex: 1 1 100%;
-    }
+    .card-body form { flex: 1 1 100%; }
 }
 
-/* Reduce table density a touch on the list view so it breathes */
-#poolsList .table > :not(caption) > * > * {
-    padding-top: .55rem;
-    padding-bottom: .55rem;
+/* Sélection texte */
+::selection {
+    background: rgba(184, 72, 94, .28);
+    color: var(--cf-ink);
 }
+
+/* Scrollbar discrète (Webkit + Firefox) */
+* {
+    scrollbar-color: var(--cf-mist) transparent;
+    scrollbar-width: thin;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+    background: var(--cf-mist);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--cf-mist); }

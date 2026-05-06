@@ -20,6 +20,8 @@
     <!-- Microsoft.Web.Administration depends on these assemblies at runtime; not in the default .NET shared framework. -->
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0" />
     <PackageReference Include="System.Security.Permissions" Version="10.0.0" />
+    <!-- Pure-C# QR code SVG renderer for TOTP enrolment (no JS / CDN dependency). -->
+    <PackageReference Include="QRCoder" Version="1.6.0" />
   </ItemGroup>
 
   <!--

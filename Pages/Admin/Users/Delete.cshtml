@@ -1,0 +1,28 @@
+@page "{id:int}"
+@model IISWeb.Pages.Admin.Users.DeleteModel
+@{
+    ViewData["Title"] = $"Delete {Model.Target?.UserName}";
+    var t = Model.Target!;
+}
+
+<a class="btn btn-link btn-sm ps-0" asp-page="Index">Back to users</a>
+<h1 class="h4 mb-3">Delete user</h1>
+
+@if (Model.ErrorMessage is { } e)
+{
+    <div class="alert alert-danger" role="alert">@e</div>
+}
+
+@if (Model.IsSelf)
+{
+    <div class="alert alert-warning">You cannot delete your own account.</div>
+}
+else
+{
+    <p>This will permanently delete <strong>@t.UserName</strong> (@t.Role).</p>
+
+    <form method="post" data-confirm="Permanently delete @t.UserName?">
+        <button class="btn btn-danger btn-sm" type="submit">Delete user</button>
+        <a class="btn btn-link btn-sm" asp-page="Index">Cancel</a>
+    </form>
+}

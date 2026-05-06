@@ -108,6 +108,9 @@ already enabled by default:
 | Login rate limit                     | `EnableRateLimiting("login")`, 10 POST/min/IP                  |
 | Account lockout                      | Per user: `LoginMaxAttempts` then `LoginLockoutMinutes`        |
 | Password storage                     | ASP.NET Core `PasswordHasher<TUser>` (PBKDF2-HMAC-SHA256, 100k+ iters), per-user salt |
+| Forced password change               | `MustChangePassword` flag => `/Account/ChangePassword` redirect |
+| Optional MFA (TOTP)                  | RFC 6238 SHA1 30s/6 digits, ±1 step tolerance, hashed recovery codes |
+| Two-step login session               | Step-1 result stored in a 5-min IP-pinned cookie protected by ASP.NET Data Protection |
 | No password is logged                | Login form excludes Password from any logger / audit field     |
 | Strict pool-name validation          | `^[A-Za-z0-9 _\.\-]{1,64}$` server-side, plus whitelist check  |
 | Whitelist enforcement                | `App.AllowedAppPools` checked on List **and** on every action  |
@@ -119,8 +122,8 @@ already enabled by default:
 
 Configured as a list of bare IPs or CIDR ranges. Behaviour:
 
-- empty list → no filtering (default);
-- non-empty list → every request whose `Connection.RemoteIpAddress` is not in
+- empty list => no filtering (default);
+- non-empty list => every request whose `Connection.RemoteIpAddress` is not in
   the list is rejected with `403 Forbidden` before the auth middleware even
   runs (so even the login page is hidden);
 - entries that fail to parse are logged and ignored;
@@ -134,16 +137,33 @@ a single jump host.
 
 ## 5. Audit log
 
-Every login (success/failure), logout and pool action writes a row into
+Every login (success/failure), MFA challenge, logout, pool action, password
+change, MFA enrol/disable, and user-management action writes a row into
 `AuditLog` (SQLite). The fields stored are:
 
 - `TimestampUtc`
 - `UserName`
 - `IpAddress` (from the connection)
-- `Action` (`Login`, `Logout`, `Start`, `Stop`, `Recycle`)
+- `Action` (`Login`, `LoginMfa`, `MfaRecoveryUsed`, `Logout`, `Start`, `Stop`,
+  `Recycle`, `PasswordChange`, `MfaEnable`, `MfaDisable`, `UserCreate`,
+  `UserUpdate`, `UserDelete`, `UserResetPwd`, `UserUnlock`, `UserDisableMfa`)
 - `AppPool` (when relevant)
 - `Success` (boolean)
 - `Message` (free-text, e.g. error message — never contains the password)
+- `PrevHash`, `RowHash` — see below.
+
+### Tamper-evident chain
+
+Each row stores the SHA-256 of the previous row's `RowHash` in `PrevHash`,
+and a `RowHash` computed over `PrevHash || canonical(fields)`. Inserting,
+deleting or editing a row breaks the chain at that row and at every row
+after it.
+
+The **Audit log** page exposes a `Verify chain integrity` button that
+recomputes the chain server-side and reports either *intact* with the last
+row hash, or *broken at row N*. Operators should run this periodically (or
+script it) — if the chain is broken when nobody added an entry, the SQLite
+file has been touched directly.
 
 The audit page is read-only and only authenticated users can view it. Back up
 `App_Data\iisweb.db` regularly if you need long-term retention.

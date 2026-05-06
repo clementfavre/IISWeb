@@ -17,11 +17,13 @@ public class LoginModel : PageModel
 {
     private readonly IUserService _users;
     private readonly IAuditService _audit;
+    private readonly MfaTicketService _mfaTickets;
 
-    public LoginModel(IUserService users, IAuditService audit)
+    public LoginModel(IUserService users, IAuditService audit, MfaTicketService mfaTickets)
     {
         _users = users;
         _audit = audit;
+        _mfaTickets = mfaTickets;
     }
 
     [BindProperty]
@@ -30,7 +32,11 @@ public class LoginModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? Reason { get; set; }
+
     public string? ErrorMessage { get; set; }
+    public string? InfoMessage { get; set; }
 
     public class InputModel
     {
@@ -51,6 +57,16 @@ public class LoginModel : PageModel
 
         // Make sure to clear out any half-broken auth.
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        Response.Cookies.Delete(MfaTicketService.CookieName);
+
+        // Surface the reason when the user got bounced back from /LoginMfa,
+        // otherwise the bounce looks silent and indistinguishable from a typo.
+        InfoMessage = Reason switch
+        {
+            "expired" => "Your verification session expired. Please sign in again.",
+            _         => null
+        };
+
         return Page();
     }
 
@@ -70,8 +86,23 @@ public class LoginModel : PageModel
         {
             case LoginResult.Success when user is not null:
                 await _users.ClearFailedAttemptsAsync(user);
+
+                if (user.TotpEnabled && !string.IsNullOrEmpty(user.TotpSecret))
+                {
+                    // Step 1 done — issue an MFA ticket and ask for the code.
+                    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+                    var token = _mfaTickets.Issue(user.Id, user.UserName, ip, user.MustChangePassword, ReturnUrl);
+                    Response.Cookies.Append(MfaTicketService.CookieName, token, BuildMfaCookieOptions());
+                    await _audit.LogAsync(AuditActions.Login, null, true, "Password OK, MFA required.", userNameOverride: user.UserName);
+                    return RedirectToPage("/Account/LoginMfa");
+                }
+
                 await SignInAsync(user);
                 await _audit.LogAsync(AuditActions.Login, null, true, userNameOverride: user.UserName);
+
+                if (user.MustChangePassword)
+                    return RedirectToPage("/Account/ChangePassword", new { returnUrl = SafeReturnUrl() });
+
                 return LocalRedirect(SafeReturnUrl());
 
             case LoginResult.LockedOut:
@@ -92,7 +123,7 @@ public class LoginModel : PageModel
         }
     }
 
-    private async Task SignInAsync(AppUser user)
+    internal static async Task SignInAsync(HttpContext http, AppUser user)
     {
         var claims = new List<Claim>
         {
@@ -104,7 +135,7 @@ public class LoginModel : PageModel
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 
-        await HttpContext.SignInAsync(
+        await http.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal,
             new AuthenticationProperties
@@ -113,6 +144,19 @@ public class LoginModel : PageModel
                 AllowRefresh = true
             });
     }
+
+    private Task SignInAsync(AppUser user) => SignInAsync(HttpContext, user);
+
+    internal CookieOptions BuildMfaCookieOptions()
+        => new()
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            IsEssential = true,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(5),
+            Path = "/"
+        };
 
     private string SafeReturnUrl()
     {

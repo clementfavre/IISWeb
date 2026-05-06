@@ -6,8 +6,32 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h1 class="h4 m-0">Audit log</h1>
-    <small class="text-muted">All timestamps are UTC</small>
+    <div class="d-flex gap-2 align-items-center">
+        <small class="text-muted">All timestamps are UTC</small>
+        <a class="btn btn-outline-secondary btn-sm" asp-route-p="@Model.CurrentPage" asp-route-verify="true">
+            Verify chain integrity
+        </a>
+    </div>
 </div>
+
+@if (Model.ChainStatus is { } st)
+{
+    if (st.IsIntact)
+    {
+        <div class="alert alert-success py-2 small" role="alert">
+            <strong>Chain intact.</strong>
+            @st.TotalRows row(s) verified. Last hash:
+            <code class="small">@(st.LastRowHash ?? "(empty)")</code>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger py-2 small" role="alert">
+            <strong>Chain broken</strong> at row id @st.FirstBrokenId. Audit log has been
+            tampered with or rows have been deleted. Investigate immediately.
+        </div>
+    }
+}
 
 <div class="table-responsive">
     <table class="table table-sm table-striped align-middle">

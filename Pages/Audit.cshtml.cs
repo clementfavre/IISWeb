@@ -15,8 +15,9 @@ public class AuditModel : PageModel
     public int CurrentPage { get; private set; } = 1;
     public int PageSize { get; } = 50;
     public int TotalPages { get; private set; } = 1;
+    public AuditChainStatus? ChainStatus { get; private set; }
 
-    public async Task OnGetAsync(int? p)
+    public async Task OnGetAsync(int? p, bool verify)
     {
         CurrentPage = p is null || p < 1 ? 1 : p.Value;
 
@@ -30,5 +31,8 @@ public class AuditModel : PageModel
             .Skip((CurrentPage - 1) * PageSize)
             .Take(PageSize)
             .ToListAsync();
+
+        if (verify)
+            ChainStatus = await _audit.VerifyChainAsync();
     }
 }

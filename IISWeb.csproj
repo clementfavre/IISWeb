@@ -9,6 +9,9 @@
     <UserSecretsId>iisweb-user-secrets</UserSecretsId>
     <InvariantGlobalization>false</InvariantGlobalization>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <Version>1.0.2</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

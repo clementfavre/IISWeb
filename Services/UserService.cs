@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using IISWeb.Configuration;
 using IISWeb.Data;
 using IISWeb.Models;
@@ -11,6 +12,9 @@ namespace IISWeb.Services;
 public class UserService : IUserService
 {
     private const int MinPasswordLength = 12;
+
+    private static readonly Regex UserNameRegex =
+        new(@"^[A-Za-z0-9._\-]{1,64}$", RegexOptions.Compiled);
 
     private readonly AppDbContext _db;
     private readonly IPasswordHasher<AppUser> _hasher;
@@ -94,6 +98,8 @@ public class UserService : IUserService
             return (AdminUserOpResult.Invalid, null, "User name is required.");
         if (userName.Length > 64)
             return (AdminUserOpResult.Invalid, null, "User name must be at most 64 characters.");
+        if (!UserNameRegex.IsMatch(userName))
+            return (AdminUserOpResult.Invalid, null, "User name may only contain letters, digits, '.', '_' or '-'.");
         if (string.IsNullOrEmpty(password) || password.Length < MinPasswordLength)
             return (AdminUserOpResult.Invalid, null, $"Password must be at least {MinPasswordLength} characters long.");
         if (!Roles.IsKnown(role))

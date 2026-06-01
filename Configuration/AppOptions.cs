@@ -17,4 +17,13 @@ public class AppOptions
     /// "fd00::/8"). An empty array disables IP filtering and lets every IP in.
     /// </summary>
     public string[] AllowedIpRanges { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// IPs or CIDR ranges of reverse proxies in front of this app (e.g. an Nginx
+    /// terminating TLS and forwarding HTTP to IIS). Their X-Forwarded-For and
+    /// X-Forwarded-Proto headers will be honored. Loopback (127.0.0.0/8, ::1)
+    /// is always trusted; only add the upstream proxies here. Empty array means
+    /// "loopback only", which is correct when IIS is the only proxy.
+    /// </summary>
+    public string[] ForwardedProxies { get; set; } = Array.Empty<string>();
 }

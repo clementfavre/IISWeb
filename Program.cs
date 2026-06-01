@@ -115,7 +115,33 @@ builder.Services.AddRazorPages(options =>
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    // Trust loopback only (IIS uses 127.0.0.1 to forward to ANCM out-of-process).
+
+    // Loopback is trusted by default. Add any upstream reverse proxies
+    // declared in App.ForwardedProxies (e.g. an Nginx that terminates TLS
+    // and forwards plain HTTP to IIS).
+    foreach (var raw in appOptions.ForwardedProxies ?? Array.Empty<string>())
+    {
+        if (string.IsNullOrWhiteSpace(raw)) continue;
+        var entry = raw.Trim();
+
+        if (entry.Contains('/'))
+        {
+            var parts = entry.Split('/', 2);
+            if (System.Net.IPAddress.TryParse(parts[0], out var netAddr)
+                && int.TryParse(parts[1], out var prefix))
+            {
+                options.KnownNetworks.Add(
+                    new Microsoft.AspNetCore.HttpOverrides.IPNetwork(netAddr, prefix));
+                // One proxy hop allowed per network entry, plus the IIS in-process hop.
+                options.ForwardLimit = Math.Max(options.ForwardLimit ?? 1, 2);
+            }
+        }
+        else if (System.Net.IPAddress.TryParse(entry, out var ip))
+        {
+            options.KnownProxies.Add(ip);
+            options.ForwardLimit = Math.Max(options.ForwardLimit ?? 1, 2);
+        }
+    }
 });
 
 // ----- HTTPS settings -----
